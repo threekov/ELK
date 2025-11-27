@@ -2,29 +2,23 @@ version: "3.8"
 
 services:
   elasticsearch:
-    image: bitnami/elasticsearch:8.12.0   # можно оставить latest, но лучше зафиксировать версию
+    image: elasticsearch:7.17.0
     container_name: elasticsearch
     environment:
-      - ELASTICSEARCH_ENABLE_SECURITY=no      # без xpack-security, для простоты
-      - discovery.type=single-node
-      - ELASTICSEARCH_PORT_NUMBER=9200
-      # при маленькой памяти ВМ можно уменьшить heap:
-      # - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - discovery.type=single-node          # одиночный узел
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m      # подрежь память под свою ВМ
     ports:
       - "9200:9200"
     volumes:
-      - esdata:/bitnami/elasticsearch/data    # bitnami путь к данным  [oai_citation:0‡Zammad - Community](https://community.zammad.org/t/seeing-the-connection-to-the-server-was-lost-on-mobile-access/18512?utm_source=chatgpt.com)
+      - esdata:/usr/share/elasticsearch/data
     networks:
       - elk
 
   kibana:
-    image: bitnami/kibana:8.12.0
+    image: kibana:7.17.0
     container_name: kibana
     environment:
-      # URL до elasticsearch внутри docker-сети
-      - KIBANA_ELASTICSEARCH_URL=http://elasticsearch:9200    [oai_citation:1‡gallery.ecr.aws](https://gallery.ecr.aws/bitnami/kibana?utm_source=chatgpt.com)
-      # при желании можно явно указать порт:
-      # - KIBANA_PORT_NUMBER=5601
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
     depends_on:
@@ -45,7 +39,7 @@ services:
       - elk
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.17.0
+    image: elastic/filebeat:7.17.2
     container_name: filebeat
     user: root
     volumes:
