@@ -10,12 +10,9 @@
 
     - name: Install Docker
       apt:
-        name: docker.io
-        state: present
-
-    - name: Install docker-compose plugin
-      apt:
-        name: docker-compose-plugin
+        name:
+          - docker.io
+          - docker-compose
         state: present
 
     - name: Ensure docker is running
@@ -44,10 +41,10 @@
         src: ../ELK/
         dest: "{{ app_dir }}/ELK/"
 
-    - name: Run docker compose
+    - name: Run docker-compose
       shell: |
         cd {{ app_dir }}
-        docker compose down -v || true
-        docker compose up -d --build
+        docker-compose down -v || true
+        docker-compose up -d --build
       args:
         chdir: "{{ app_dir }}"
